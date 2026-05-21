@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Birthday Matrix Dad Edition + Music</title>
+    <title>Dad's Birthday - Perfect Stable Orbit</title>
     <style>
         body {
             margin: 0;
@@ -11,14 +11,11 @@
             font-family: 'Courier New', Courier, monospace;
         }
 
-        canvas {
-            display: block;
-        }
+        canvas { display: block; }
 
         #startBtn {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             padding: 20px 40px;
             font-size: 24px;
@@ -29,7 +26,6 @@
             text-shadow: 0 0 15px #ff3366;
             box-shadow: 0 0 20px #ff3366;
             z-index: 100;
-            transition: 0.3s;
             border-radius: 50px;
         }
 
@@ -40,76 +36,105 @@
             color: #fff;
             font-weight: bold;
             text-align: center;
-            text-shadow: 
-                0 0 10px #fff,
-                0 0 20px #ff3366,
-                0 0 40px #ff3366,
-                0 0 80px #ff3366;
+            text-shadow: 0 0 10px #fff, 0 0 20px #ff3366, 0 0 40px #ff3366, 0 0 80px #ff3366;
             filter: blur(0.3px);
             pointer-events: none;
             display: none;
-            width: 90%;
+            width: 100%;
             z-index: 50;
-            transition: all 1.2s ease-in-out;
         }
 
-        #overlay { top: 40%; font-size: 70px; }
-        #sub-phrase { top: 85%; font-size: 30px; font-style: italic; line-height: 1.4; }
+        #overlay { top: 12%; font-size: 50px; }
+        #sub-phrase { top: 92%; font-size: 18px; font-style: italic; width: 95%; }
 
+        /* Контейнер для всей сцены */
         #finalContent {
             position: absolute;
-            top: 45%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
-            display: flex;
-            flex-direction: column;
+            width: 100vw; height: 100vh;
+            display: none;
+            justify-content: center;
             align-items: center;
-            opacity: 0;
-            transition: opacity 2s ease-in-out;
             z-index: 40;
-            width: 100%;
         }
 
-        .profile-circle {
-            width: 220px;
-            height: 220px;
-            border-radius: 50%;
-            border: 6px solid #fff;
-            box-shadow: 0 0 40px #ff3366;
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-
-        .balloon {
+        /* КОНТЕЙНЕР ОРБИТЫ */
+        #orbitContainer {
             position: absolute;
-            width: 40px;
-            height: 55px;
-            background: rgba(255, 51, 102, 0.6);
-            border-radius: 50%;
-            box-shadow: 0 0 20px #ff3366;
-            animation: float 5s ease-in-out infinite;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(5deg); }
-            50% { transform: translateY(-35px) rotate(-5deg); }
+        .photo-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 20px #ff3366;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 1s ease;
         }
+
+        .main-photo { width: 160px; height: 160px; z-index: 60; }
+        .side-photo { width: 95px; height: 95px; z-index: 55; }
+
+        /* Начальные позиции (скрыты в центре) */
+        .side-photo { transform: translate(0, 0); }
+
+        /* Анимация вращения всей орбиты против часовой стрелки */
+        @keyframes orbitRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        /* Анимация для самих фото, чтобы они НЕ крутились (компенсация) */
+        @keyframes keepUpright {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Классы для запуска анимаций */
+        .start-orbit {
+            animation: orbitRotate 15s linear infinite;
+        }
+
+        /* Специальные стили для каждого фото с сохранением дистанции */
+        #p1.active { opacity: 1; transform: translate(-180px, -180px); transition: 1.5s; }
+        #p2.active { opacity: 1; transform: translate(180px, -180px); transition: 1.5s; }
+        #p3.active { opacity: 1; transform: translate(-180px, 180px); transition: 1.5s; }
+        #p4.active { opacity: 1; transform: translate(180px, 180px); transition: 1.5s; }
+
+        /* Когда включается орбита, мы меняем способ трансформации */
+        #p1.orbiting { animation: keepUpright 15s linear infinite; top: calc(50% - 180px - 47px); left: calc(50% - 180px - 47px); transform: none; }
+        #p2.orbiting { animation: keepUpright 15s linear infinite; top: calc(50% - 180px - 47px); left: calc(50% + 180px - 47px); transform: none; }
+        #p3.orbiting { animation: keepUpright 15s linear infinite; top: calc(50% + 180px - 47px); left: calc(50% - 180px - 47px); transform: none; }
+        #p4.orbiting { animation: keepUpright 15s linear infinite; top: calc(50% + 180px - 47px); left: calc(50% + 180px - 47px); transform: none; }
+        /* 47px - это половина ширины маленького фото (95/2), чтобы оно было точно по центру точки */
+
     </style>
 </head>
 <body>
 
-    <!-- Элемент аудио -->
     <audio id="mySong" src="music.mp3" loop></audio>
-
     <button id="startBtn">ОТКРЫТЬ ПОЗДРАВЛЕНИЕ</button>
     
     <div id="overlay"></div>
     <div id="sub-phrase">Your son, happy dad's day, you are the best dad</div>
 
     <div id="finalContent">
-        <img src="photo.jpg" alt="Best Dad" class="profile-circle">
-        <div class="balloon" style="left: 15%; top: 10%;"></div>
-        <div class="balloon" style="right: 15%; top: 20%; background: #ff85a1;"></div>
+        <!-- Центр -->
+        <img src="photo.jpg" class="photo-circle main-photo" id="p0" style="opacity:0;">
+        
+        <!-- Группа на орбите -->
+        <div id="orbitContainer">
+            <img src="photo1.jpg" class="photo-circle side-photo" id="p1">
+            <img src="photo2.jpg" class="photo-circle side-photo" id="p2">
+            <img src="photo3.jpg" class="photo-circle side-photo" id="p3">
+            <img src="photo4.jpg" class="photo-circle side-photo" id="p4">
+        </div>
     </div>
 
     <canvas id="matrix"></canvas>
@@ -118,10 +143,11 @@
         const canvas = document.getElementById('matrix');
         const ctx = canvas.getContext('2d');
         const btn = document.getElementById('startBtn');
-        const song = document.getElementById('mySong'); // Ссылка на музыку
+        const song = document.getElementById('mySong');
         const overlay = document.getElementById('overlay');
         const subPhrase = document.getElementById('sub-phrase');
         const finalContent = document.getElementById('finalContent');
+        const orbit = document.getElementById('orbitContainer');
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -133,57 +159,73 @@
         for (let i = 0; i < columns; i++) drops[i] = 1;
 
         function drawMatrix() {
-            ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.shadowBlur = 5;
-            ctx.shadowColor = "#ff3366";
-            ctx.fillStyle = "#ffb3c1"; 
-            ctx.font = fontSize + "px monospace";
+            ctx.shadowBlur = 5; ctx.shadowColor = "#ff3366";
+            ctx.fillStyle = "#ffb3c1"; ctx.font = fontSize + "px monospace";
             for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+const text = chars.charAt(Math.floor(Math.random() * chars.length));
                 ctx.fillText(text, i * fontSize, drops[i] * fontSize);
                 if (drops[i] * fontSize > canvas.height && Math.random() > 0.985) drops[i] = 0;
-                drops[i] += 0.55;
+                drops[i] += 0.5;
             }
         }
 
         const timeline = [
             { text: "3", time: 1000 },
-            { text: "2", time: 2500 },
-            { text: "1", time: 4000 },
-            { text: "HAPPY BIRTHDAY", time: 6000 },
-            { text: "HAPPY 42+", time: 9000 },
+            { text: "2", time: 2300 },
+            { text: "1", time: 3600 },
+            { text: "HAPPY BIRTHDAY", time: 5000 },
+            { text: "HAPPY 42+", time: 8000 },
             { text: "21.05.1984", time: 12000 }
         ];
 
         function startAnimation() {
             btn.style.display = 'none';
             overlay.style.display = 'block';
-
-            // ВКЛЮЧАЕМ МУЗЫКУ
-            song.play().catch(error => console.log("Ошибка воспроизведения:", error));
-
+            song.play().catch(e => console.log("Музыка не найдена"));
             setInterval(drawMatrix, 50);
 
             timeline.forEach(item => {
                 setTimeout(() => {
                     overlay.innerText = item.text;
+                    
                     if (item.text === "HAPPY 42+") {
-                        finalContent.style.opacity = "1";
+                        finalContent.style.display = "flex";
                         subPhrase.style.display = "block";
-                        overlay.style.top = "15%";
+                        
+                        // Появление центра
+                        setTimeout(() => document.getElementById('p0').style.opacity = "1", 100);
+                        
+                        // Плавный вылет боковых фото
+                        const phs = [
+                            document.getElementById('p1'),
+                            document.getElementById('p2'),
+                            document.getElementById('p3'),
+                            document.getElementById('p4')
+                        ];
+                        
+                        setTimeout(() => phs[0].classList.add('active'), 400);
+                        setTimeout(() => phs[1].classList.add('active'), 700);
+                        setTimeout(() => phs[2].classList.add('active'), 1000);
+                        setTimeout(() => phs[3].classList.add('active'), 1300);
+
+                        // ЗАПУСК ВРАЩЕНИЯ (когда вылет завершен)
+                        setTimeout(() => {
+                            orbit.classList.add('start-orbit');
+                            phs.forEach(img => {
+                                img.classList.add('orbiting');
+                            });
+                        }, 2800);
                     }
                 }, item.time);
             });
         }
 
         btn.addEventListener('click', startAnimation);
-
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
         });
     </script>
 </body>
 </html>
-
